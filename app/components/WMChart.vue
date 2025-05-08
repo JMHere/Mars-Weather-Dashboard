@@ -5,6 +5,14 @@
                 :options="['Weekly', 'Monthly']"
                 v-model="selectedChart"
             />
+            <Dropdown 
+                :options="['Line Graph', 'Bar Graph']"
+                v-model="selectedChartType"
+            />
+            <Dropdown 
+                :options="['Temperature', 'Wind Speed', 'Presure', 'UV Radiation', 'Atmospheric Opacity', 'Air & Ground Temp']"
+                v-model="selectedData"
+            />
         </div>
         <canvas ref="canvasRef"></canvas>
     </div>
@@ -20,6 +28,8 @@ Chart.register(...registerables)
 
 // Mutable variables
 const selectedChart = ref('Weekly')
+const selectedChartType = ref('Line Graph')
+const selectedData = ref('Temperature')
 const chartInstance = ref(null)
 const canvasRef = ref(null)
 
@@ -46,15 +56,60 @@ const chartDataSets = {
     }
 }
 
+const pressureDataset = (weatherData) => [
+    {
+        label: 'Pressure',
+        data: weatherData.map(item => item.pressure),
+        fill: false,
+        borderColor: 'red',
+        backgroundColor: 'pink',
+        borderWidth: 2,
+        borderRadius: 5,
+        tension: 0.1
+    }
+]
+
+const temperatureDataset = (weatherData) => [
+    {
+        label: 'High Temp(°C)',
+        data: weatherData.map(item => item.high_temp.celsius),
+        fill: false,
+        borderColor: 'red',
+        backgroundColor: 'pink',
+        borderWidth: 2,
+        borderRadius: 5,
+        tension: 0.1
+    },
+    {
+        label: 'Low Temp(°C)',
+        data: weatherData.map(item => item.low_temp.celsius),
+        fill: false,
+        borderColor: 'blue',
+        backgroundColor: 'lightBlue',
+        borderWidth: 2,
+        borderRadius: 5,
+        tension: 0.1
+    }
+]
+
 // Rendering charts based on the new selected Value
 function renderChart() {
     let weatherData = {}
+    let chartType = ''
 
     if (selectedChart.value === 'Weekly') {
         weatherData = props.weeklyData
     } else if (selectedChart.value === 'Monthly') {
         weatherData = props.monthlyData
     }
+
+    if (selectedChartType.value === 'Line Graph') {
+        chartType = 'line'
+    } else if (selectedChartType.value === 'Bar Graph') {
+        chartType = 'bar'
+    }
+
+
 
     if (chartInstance.value) {
         chartInstance.value.destroy()
@@ -66,7 +121,7 @@ function renderChart() {
         return
     }
     chartInstance.value = new Chart(canvasRef.value, {
-        type: 'line',
+        type: chartType,
         data: {
             labels: weatherData.map(item => item.sol),
             datasets: [
@@ -75,6 +130,9 @@ function renderChart() {
                     data: weatherData.map(item => item.high_temp.celsius),
                     fill: false,
                     borderColor: 'red',
+                    backgroundColor: 'pink',
+                    borderWidth: 2,
+                    borderRadius: 5,
                     tension: 0.1
                 },
                 {
@@ -82,6 +140,9 @@ function renderChart() {
                     data: weatherData.map(item => item.low_temp.celsius),
                     fill: false,
                     borderColor: 'blue',
+                    backgroundColor: 'lightBlue',
+                    borderWidth: 2,
+                    borderRadius: 5,
                     tension: 0.1
                 }
             ]
@@ -124,7 +185,7 @@ onMounted(() =>{
     renderChart()
 })
 // Trigger for when a new selction on the dropdown has been made
-watch(selectedChart, () => {
+watch([selectedChart, selectedChartType], () => {
     renderChart()
 })
 

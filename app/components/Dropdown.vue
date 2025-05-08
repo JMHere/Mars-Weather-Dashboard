@@ -6,11 +6,13 @@
         <ul v-if="open" class="absolute left-0 top-full z-10 w-40 bg-white border border-gray-200 rounded-md shadow-lg">
             <!-- click.stop prevents the list from closing if the user clicks on the main div -->
             <li
+                
                 v-for="option in options"
                 :key="option"
                 @click.stop="select(option)"
                 class="px-4 py-2 hover:bg-gray-100 cursor-pointer" 
             >
+            <!-- for loop in options, key for each option,  -->
                 {{ option }}
             </li>
         </ul>

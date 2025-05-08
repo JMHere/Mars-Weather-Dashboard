@@ -11,19 +11,8 @@
     <div>
         <WeatherCard v-if="weather" :data="weather" />
     </div>
-    <!-- <div>
-        <BarChart />
-    </div> -->
-    <!-- <div>
-        <SevenDayChart v-if="weeklyWeather" :weather-data="weeklyWeather" />
-    </div> -->
     <div>
-        <!-- <Dropdown
-            :options="['Weekly', 'Monthly']"
-            v-model="selectedChart"
-        /> -->
-    </div>
-    <div>
+        <!-- checking if weekly data has value -->
         <WMChart v-if="weeklyWeather && monthlyWeather" 
         :weekly-data="weeklyWeather"
         :monthly-data="monthlyWeather"
@@ -32,10 +21,7 @@
 </template>
 
 <script setup>
-import BarChart from '~/components/BarChart.vue';
 import { ref } from 'vue';
-
-const selectedChart = ref('Weekly')
 
 const {data: weather, pending, error} = await useFetch('http://127.0.0.1:8000/weather/sol/4504', {
     server: false,
@@ -57,7 +43,6 @@ const {data: monthlyWeather, panding: monthlyPending, error: monthlyError} = awa
 <script>
 import WeatherCard from '@/components/WeatherCard.vue'
 import SevenDayChart from '~/components/SevenDayChart.vue';
-import Dropdown from '~/components/Dropdown.vue';
 import WMChart from '~/components/WMChart.vue';
 
 export default {
