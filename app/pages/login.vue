@@ -1,27 +1,18 @@
 <template>
     <div class="mx-auto my-40 max-w-sm min-w-min">
         <div class="shadow pb-6 border justify-items-center px-4">
+            <h1 v-if="error" class="text-4xl px-2 py-5 text-center text-red-500"> {{ error }}</h1>
+            <h1 v-if="user" class="text-4xl px-2 py-5 text-center"> Logged in as: {{ user.email }}</h1>
             <h1 class="text-4xl px-2 py-5 text-center">Log in</h1>
             <form @submit.prevent="handleLogin" class="flex flex-col justify-center">
                 <input v-model="email" placeholder="Email" type="email" class="border border-black w-80 pl-2 h-10 mb-4"/>
+                <InlineToast v-if="showEmailToast" :message="toastEmailMessage" :toastType="toastTypeEmail"/>
 
-                <div class="relative">
-                    <input 
-                    v-model="password" 
-                    placeholder="Password" 
-                    :type="showPassword ? 'text' : 'password'" 
-                    class="border border-black w-80 pl-2 h-10"
-                    />
-
-                    <button 
-                    @click="togglePassword"
-                    class="absolute inset-y-0 right-0 flex items-center px-3">
-                    <Icon :name="showPassword ? 'heroicons:eye' : 'heroicons:eye-slash'"/>
-                    </button>
-                </div>
-
+                <PasswordInput v-model="password" placeholder="Password"/>
+                <InlineToast v-if="showPasswordToast" :message="toastPasswordMessage" :toastType="toastType"/>
+                
                 <div class="pb-1 pt-0">
-                    <a href="/" class="text-sm mb-4 text-blue-600 hover:underline font-bold">Forgot password?</a>
+                    <NuxtLink to="/" class="text-sm mb-4 text-blue-600 hover:underline font-bold">Forgot password?</NuxtLink>
                 </div>
 
                 <div class="flex justify-center">
@@ -32,25 +23,66 @@
             
         </div>
         <div class="flex justify-center text-sm pt-3">
-            <p>New to Mars Weather Dash? <a href="/signup" class="text-blue-600 hover:underline font-bold">Sign Up</a></p>
+            <p>New to Mars Weather Dash? <NuxtLink to="/signup" class="text-blue-600 hover:underline font-bold">Sign Up</NuxtLink></p>
         </div>
+        <button @click="logoutUser">LogOut</button>
     </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
+import PasswordInput from '~/components/PasswordInput.vue';
+import InlineToast from '~/components/InlineToast.vue';
+import { useAuth } from '~/composables/useFirebase'
+
+const { login, getUser, logout } = useAuth();
 
 const email = ref('');
 const password = ref('');
-const showPassword = ref(false)
+const user = getUser();
+const error = ref('');
+const toastPasswordMessage = ref('');
+const toastType = ref('error');
+const showPasswordToast = ref(false);
+const toastEmailMessage = ref('');
+const toastTypeEmail = ref('error');
+const showEmailToast = ref(false);
+
+
 
 const handleLogin = async () => {
-    console.log(email.value)
+    showPasswordToast.value = false
+    toastPasswordMessage.value = ''
+    try {
+        await login(email.value, password.value);
+        user.value = getUser().value;
+    } catch (err) {
+        console.log(err)
+        if (err.code === 'auth/wrong-password') {
+            toastPasswordMessage.value = 'Incorrect password.'
+            toastType.value = 'error'
+            showPasswordToast.value = true
+        } else if (err.code === 'auth/invalid-email') {
+            toastEmailMessage.value = 'Invalid Email.'
+            toastTypeEmail.value = 'error'
+            showEmailToast.value = true
+        } else if (err.code === 'auth/invalid-credential') {
+            toastPasswordMessage.value = 'Incorrect Emial Or Password.'
+            toastType.value = 'error'
+            showPasswordToast.value = true
+        }
+        
+    }
 };
 
-const togglePassword = () => {
-    showPassword.value = !showPassword.value
+const logoutUser = async () => {
+    try {
+        await logout();
+        console.log('logged out')
+    } catch (e) {
+        error.value = e.message;
+    }
 }
 
 </script>

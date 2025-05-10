@@ -2,19 +2,26 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
-    onAuthStateChanged
+    onAuthStateChanged,
+    signInWithPopup,
+    GoogleAuthProvider
     } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, inject } from "vue";
 import { useNuxtApp } from "#app";
 
 const user = ref(null);
 
 export const useAuth = () => {
-    const { firebaseAuth } = useNuxtApp();
+    const { $firebaseAuth } = useNuxtApp();
+
+    const signup = async (email, password) => {
+        const res = await createUserWithEmailAndPassword($firebaseAuth, email, password)
+        user.value = res.user;
+    }
 
     const login = async (email, password) => {
-        const res = await signInWithEmailAndPassword(firebaseAuth, email, password);
+        const res = await signInWithEmailAndPassword($firebaseAuth, email, password);
         user.value = res.user;
     }
 
@@ -22,13 +29,18 @@ export const useAuth = () => {
         return user;
     }
 
+    const logout = async () => {
+        await signOut($firebaseAuth);
+        user.value = null;
+    }
+
     // Differnt type of watch that only focuses on user login and logout
     onMounted(() => {
-        onAuthStateChanged(firebaseAuth, (u) => {
+        onAuthStateChanged($firebaseAuth, (u) => {
             user.value = u;
         })
     })
 
-    return { login, getUser}
+    return { login, getUser, signup, logout, getUser}
 };
 
