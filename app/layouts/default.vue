@@ -6,9 +6,10 @@
                     <NuxtLink to="/" class="hover:underline">Home</NuxtLink>
                     <NuxtLink to="/dashboard">Dashboard</NuxtLink>
                 </div>
-                <div class="ml-auto flex space-x-4">
+                <div class="ml-auto flex space-x-4 items-center">
                     <NuxtLink to="/about" class="hover:underline">About</NuxtLink>
-                <NuxtLink to="/contact" class="hover:underline">Contact</NuxtLink>
+                    <NuxtLink to="/contact" class="hover:underline">Contact</NuxtLink>
+                    <Dropdown />
                 </div>
             </nav>
         </header>

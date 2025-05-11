@@ -25,6 +25,17 @@ export const useAuth = () => {
         user.value = res.user;
     }
 
+    const loginWithGoogle = async () => {
+        const provider = new GoogleAuthProvider();
+        try {
+            const res = await signInWithPopup($firebaseAuth, provider)
+            user.value = res.user;
+
+        } catch (error) {
+            console.error("Error during Google login:", error);
+        }
+    }
+
     const getUser = () => {
         return user;
     }
@@ -41,6 +52,6 @@ export const useAuth = () => {
         })
     })
 
-    return { login, getUser, signup, logout, getUser}
+    return { login, getUser, signup, logout, getUser, loginWithGoogle}
 };
 

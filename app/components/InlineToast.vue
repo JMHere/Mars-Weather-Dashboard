@@ -1,5 +1,5 @@
 <template>
-    <div v-if="showToast" :class="toastClass" class="relative p-2 shadow-lg">
+    <div v-if="showToast" :class="toastClass" class="relative p-2 shadow-lg mb-4">
         <strong class="font-bold"> {{ toastTitle }} </strong>
         <span>{{ message }}</span>
         <button @click="show" class="absolute top-0 bottom-0 right-0 px-4 py-3">
@@ -20,7 +20,7 @@ const props = defineProps({
 })
 
 const show = () => {
-    showToast.value = !showToast.value
+    showToast.value = false
 }
 
 const toastTitle = computed(() => {
