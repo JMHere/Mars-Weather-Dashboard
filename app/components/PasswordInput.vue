@@ -2,6 +2,7 @@
     <div class="relative mb-4">
         <input 
             v-model="password"
+            @blur="emit('blur')"
             :type="show ? 'text': 'password'"
             :placeholder="placeholder"
             class="border border-black w-80 pl-2 h-10"
@@ -20,6 +21,7 @@
 import { ref } from 'vue';
 
 const show = ref(false)
+const emit = defineEmits(['blur'])
 
 const password = defineModel()
 const props = defineProps({

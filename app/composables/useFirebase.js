@@ -7,17 +7,31 @@ import {
     GoogleAuthProvider
     } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { ref, onMounted, inject } from "vue";
+import { ref, onMounted } from "vue";
 import { useNuxtApp } from "#app";
 
 const user = ref(null);
 
 export const useAuth = () => {
-    const { $firebaseAuth } = useNuxtApp();
+    const { $firebaseAuth, $firestoreDB } = useNuxtApp();
 
-    const signup = async (email, password) => {
-        const res = await createUserWithEmailAndPassword($firebaseAuth, email, password)
-        user.value = res.user;
+    const signup = async (email, password, username, country) => {
+        try {
+            const res = await createUserWithEmailAndPassword($firebaseAuth, email, password);
+            
+            const userRef = doc($firestoreDB, "users", res.user.uid);
+            await setDoc(userRef , {
+                username,
+                country,
+                email: res.user.email,
+                createdAt: new Date(),
+            });
+
+            user.value = res.user;
+        } catch (error) {
+            console.log(error)
+        }
+        
     }
 
     const login = async (email, password) => {
@@ -52,6 +66,6 @@ export const useAuth = () => {
         })
     })
 
-    return { login, getUser, signup, logout, getUser, loginWithGoogle}
+    return { login, getUser, signup, logout, loginWithGoogle}
 };
 
